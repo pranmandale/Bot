@@ -3,6 +3,7 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken"
 
 
+
 const userSchema = new mongoose.Schema({
   username: {
     type: String,
@@ -18,6 +19,9 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true
   },
+  refreshToken: {
+    type: String,
+  }
 });
 
 // Hash password before saving
@@ -54,6 +58,17 @@ userSchema.methods.generateRefreshToken = function() {
   const refreshToken = jwt.sign({_id: this._id}, process.env.REFRESH_TOKEN_SECRET, {expiresIn: '7d'});
   return refreshToken;
 }
+
+
+// static method for finding user by refresh token
+userSchema.statics.findByRefreshToken = function(token) {
+  try {
+    const decoded = jwt.verify(token, process.env.REFRESH_TOKEN_SECRET);  
+    return this.findById(decoded._id);
+  } catch (error) {
+    return null;
+  } 
+};
 
 const User = mongoose.model("User", userSchema);
 export default User;

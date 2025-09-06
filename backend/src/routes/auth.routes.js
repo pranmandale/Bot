@@ -1,5 +1,6 @@
 import express from 'express';
-import { login, register } from '../controller/auth.controller.js';
+import { fetchProfile, login, refreshToken, register, logout } from '../controller/auth.controller.js';
+import { authenticate } from '../middleware/auth.middleware.js';
 
 
 const router = express.Router();
@@ -19,5 +20,9 @@ router.get('/logout', (req, res) => {
   });
   return res.status(200).json({ message: "Logout successful" });
 }); 
+
+router.get('/profile', authenticate, fetchProfile);
+router.post('/refresh-token', refreshToken);
+router.post('/logout', authenticate, logout);
 
 export default router;

@@ -79,3 +79,55 @@ export const login = async (req, res) => {
         return res.status(500).json({ error: "Internal Server Error" });
     }
 };
+
+
+export const fetchProfile = async (req, res) => {
+    try{
+        const userId = req.user.id;
+        const user = await User.findById(userId).select("-password");
+        if (!user) {
+            return res.status(404).json({ error: "User not found" });
+        }
+        return res.status(200).json({ user });
+    } catch(error) {
+        console.log("Error in Fetch Profile Controller:", error);
+        return res.status(500).json({ error: "Internal Server Error" });
+    }
+}
+
+
+export const refreshToken = async (req, res) => {
+    try {
+        const token = req.cookies.refreshToken;
+        if (!token) {
+            return res.status(401).json({ error: "No token provided" });
+        }
+        // Verify token
+        const user = await User.findByRefreshToken(token);
+        if (!user) {
+            return res.status(401).json({ error: "Invalid token" });
+        }
+
+        // Generate new access token
+        const accessToken = user.generateAuthToken();
+        return res.status(200).json({ accessToken });
+    } catch (error) {
+        console.error("Error in Refresh Token Controller:", error);
+        return res.status(500).json({ error: "Internal Server Error" });
+    }
+}
+
+
+export const logout = async (req, res) => {
+    try {
+        res.clearCookie("refreshToken", {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "Strict"
+        });
+        return res.status(200).json({ message: "Logout successful" });
+    } catch (error) {
+        console.error("Error in Logout Controller:", error);
+        return res.status(500).json({ error: "Internal Server Error" });
+    }
+}
