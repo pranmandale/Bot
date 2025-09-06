@@ -2,7 +2,7 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from "axios";
 import { setAccessToken } from "./tokenSlice.js";
 import { decodedToken } from '../../utlis/decodedToken.js';
-import axiosInstance from '../../services/axiosInstance.js';
+// import axiosInst ance from '../../services/axiosInstance.js';
 
 const API_URL = import.meta.env.VITE_NODE_URI;
 
@@ -72,18 +72,21 @@ export const refreshToken = createAsyncThunk(
   }
 );
 
-// -------------------- LOGOUT --------------------
+
+
 export const logoutUser = createAsyncThunk(
   'auth/logoutUser',
   async (_, { rejectWithValue }) => {
     try {
-      await axiosInstance.post(`/auth/logout`);
-      return true;
+        await axios.post(`${API_URL}/auth/logout`, {}, {
+            headers: { 'Content-Type': 'application/json' },
+            withCredentials: true,
+        });
+        return true;
     } catch (error) {
-      return rejectWithValue(error.response?.data || { message: "Server error" });
+        return rejectWithValue(error.response?.data || { message: "Server error" });
     }
-  }
-);
+});
 
 // -------------------- SLICE --------------------
 const authSlice = createSlice({

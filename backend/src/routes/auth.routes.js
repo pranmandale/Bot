@@ -23,6 +23,6 @@ router.get('/logout', (req, res) => {
 
 router.get('/profile', authenticate, fetchProfile);
 router.post('/refresh-token', refreshToken);
-router.post('/logout', authenticate, logout);
+router.post('/logout', logout);
 
 export default router;
